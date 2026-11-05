@@ -1,0 +1,17 @@
+{
+  "name": "오늘도 차분히 · 국어 기출 라이브러리",
+  "short_name": "오늘도 차분히",
+  "description": "공식 기출 PDF를 모아 시험지처럼 풀고, Apple Pencil로 필기하는 국어 기출 학습 사이트",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "lang": "ko",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="오늘도 차분히">
+<title>오늘도 차분히 · 국어 기출 라이브러리</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">오늘도 차분히<small>국어 기출 라이브러리</small></div>
+  <nav class="nav" id="nav">
+    <a href="#/lib" data-nav="lib">자료함</a>
+    <a href="#/collect" data-nav="collect">기출 찾기</a>
+    <a href="#/study" data-nav="study">공부 기록</a>
+  </nav>
+  <span class="sp"></span>
+  <a class="pill" id="freePill" href="#/study" hidden style="text-decoration:none"></a>
+  <span class="pill" id="saveState" title="필기·메모 저장 상태">저장 대기</span>
+  <button class="pill" id="syncState" title="클라우드 동기화" style="cursor:pointer">동기화 꺼짐</button>
+  <button class="btn sm" id="btnSettings">설정</button>
+</header>
+
+<main>
+  <!-- ===== 자료함 ===== -->
+  <section class="view" id="v-lib">
+    <div class="lib-bar">
+      <div class="seg" id="libMode"><button data-m="docs" class="on">자료</button><button data-m="passages">지문 모아보기</button></div>
+      <input type="search" id="libQ" placeholder="제목·지문 검색" aria-label="검색">
+      <select id="libYear" aria-label="학년도"></select>
+      <select id="libSort" aria-label="정렬">
+        <option value="year-desc">연도 ↓ (최신순)</option>
+        <option value="year-asc">연도 ↑</option>
+        <option value="exam">시험 종류순</option>
+        <option value="opened">최근 연 순</option>
+        <option value="added">추가한 순</option>
+        <option value="solve">풀이 시간 많은 순</option>
+      </select>
+      <button class="btn" id="libFav">★ 즐겨찾기</button>
+      <button class="btn primary" id="libAdd">내 PDF 추가</button>
+      <input type="file" id="fileIn" accept="application/pdf,.pdf" multiple hidden>
+    </div>
+    <div class="chips" id="libExam" style="margin-bottom:6px"></div>
+    <div class="chips" id="libCat" style="margin-bottom:12px"></div>
+    <div id="libRecent"></div>
+    <div id="libBody"></div>
+    <p class="muted" style="margin-top:16px;line-height:1.7">PDF·필기·메모는 이 브라우저(IndexedDB)에 저장돼요. 공식 공개 자료 또는 직접 가진 PDF만 사용하세요. 설정에서 백업 파일을 내보낼 수 있어요.</p>
+  </section>
+
+  <!-- ===== 기출 찾기(자동 수집) ===== -->
+  <section class="view" id="v-collect" hidden>
+    <h2>기출 찾기</h2>
+    <div class="card stack">
+      <div class="form-row">
+        <select id="cYear" aria-label="학년도"></select>
+        <select id="cExam" aria-label="시험 종류">
+          <option value="csat">대학수학능력시험</option>
+          <option value="jun">6월 모의평가</option>
+          <option value="sep">9월 모의평가</option>
+          <option value="office">교육청 학력평가</option>
+        </select>
+        <select id="cMonth" aria-label="교육청 시행 월" hidden>
+          <option value="">전체 월</option><option value="3">3월</option><option value="4">4월</option><option value="5">5월</option><option value="6">6월</option><option value="7">7월</option><option value="9">9월</option><option value="10">10월</option><option value="11">11월</option>
+        </select>
+        <button class="btn primary" id="cFind">공식 출처에서 찾기</button>
+        <button class="btn" id="cDiag" title="접속이 안 될 때 원인을 계층별로 확인">연결 진단</button>
+        <span class="muted" id="cHealth"></span>
+      </div>
+      <div class="notice" id="cNotice">자동 수집은 <b>서버 기능(Netlify Functions)</b>이 있는 배포 환경에서만 동작해요. 공식 사이트의 구조가 바뀌면 실패할 수 있고, 그럴 땐 공식 페이지 링크로 안내해요. 로그인·접근 제한은 우회하지 않아요.</div>
+      <div id="cResult"></div>
+    </div>
+
+    <div class="card stack" style="margin-top:12px">
+      <h3>직접 찾기 도움 <span class="muted">(v3 기능)</span></h3>
+      <div class="chips" id="cCats"></div>
+      <div class="muted" id="cReq"></div>
+      <div class="row">
+        <button class="btn" id="cWeb">웹에서 찾기</button>
+        <button class="btn" id="cChat">ChatGPT에 찾기</button>
+        <button class="btn" id="cCopy">검색 문장 복사</button>
+        <a class="btn" href="https://www.suneung.re.kr/" target="_blank" rel="noopener">수능 누리집 ↗</a>
+        <a class="btn" href="https://www.kice.re.kr/" target="_blank" rel="noopener">평가원 ↗</a>
+        <a class="btn" href="https://www.ebsi.co.kr/" target="_blank" rel="noopener">EBSi ↗</a>
+      </div>
+      <div class="muted">공식 사이트에서 PDF를 내려받은 뒤 자료함의 ‘내 PDF 추가’로 불러오면 돼요.</div>
+    </div>
+  </section>
+
+  <!-- ===== 공부 기록 ===== -->
+  <section class="view" id="v-study" hidden></section>
+
+  <!-- ===== 시험지 뷰어 ===== -->
+  <section class="view" id="v-reader" hidden>
+    <div class="rbar" id="rbar">
+      <button class="btn" id="rBack" aria-label="자료함으로">← 자료함</button>
+      <span class="ttl" id="rTitle"></span>
+      <span class="vr"></span>
+      <button class="btn" id="rPrev" aria-label="이전">◀</button>
+      <input type="number" id="rPage" min="1" value="1" inputmode="numeric" aria-label="페이지 번호">
+      <span class="muted" id="rTotal">/ 0</span>
+      <button class="btn" id="rNext" aria-label="다음">▶</button>
+      <span class="vr"></span>
+      <button class="btn" id="zOut" aria-label="축소">−</button>
+      <span class="muted" id="zLabel" style="min-width:38px;text-align:center">100%</span>
+      <button class="btn" id="zIn" aria-label="확대">+</button>
+      <button class="btn" id="zFit">맞춤</button>
+      <button class="btn" id="rMode" title="한 쪽/두 쪽 보기">자동</button>
+      <span class="vr"></span>
+      <button class="btn on" id="tPen">펜</button>
+      <button class="btn" id="tHi">형광펜</button>
+      <button class="btn" id="tEr">지우개</button>
+      <span id="colors" style="display:flex;gap:6px;align-items:center"></span>
+      <input type="range" id="tW" min="1" max="16" value="3" aria-label="굵기" style="width:80px">
+      <button class="btn" id="tUndo">실행 취소</button>
+      <button class="btn" id="tRedo">다시</button>
+      <button class="btn" id="tMore">지우기 ▾</button>
+      <button class="btn" id="tInput" title="필기 입력 방식">✎ 펜슬만</button>
+      <span class="vr"></span>
+      <span class="timerchip"><b id="tmTime">00:00:00</b><button class="btn sm" id="tmBtn">시작</button><button class="btn sm" id="tmStop" hidden>종료</button></span>
+      <span class="pill" id="rSave">저장 대기</span>
+      <button class="btn" id="bmBtn" title="현재 쪽 책갈피">☆ 책갈피</button>
+      <button class="btn" id="rPanelBtn">메모·지문</button>
+    </div>
+    <div class="rbody">
+      <div class="paper" id="paper"><div id="spread"></div><div class="msg" id="rMsg" hidden></div></div>
+      <aside class="panel" id="panel" hidden>
+        <div class="pgoto"><span class="muted">문제</span><input type="number" id="qNum" min="1" max="45" placeholder="번호" inputmode="numeric"><button class="btn sm" id="qGo">이동</button><span class="muted" id="qHint"></span><span class="sp"></span><button class="btn sm ghost" id="pWide" title="패널 넓게">↔</button><button class="btn sm ghost" id="pClose" aria-label="닫기">✕</button></div>
+        <div class="ptabs" id="ptabs"><button data-t="memo" class="on">메모</button><button data-t="pass">지문</button><button data-t="solve">풀이</button><button data-t="search">찾기</button><button data-t="mark">책갈피</button></div>
+        <div class="pbody" id="pbody"></div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<div id="toasts" aria-live="polite"></div>
+<noscript><div class="fatal">이 사이트는 JavaScript가 필요해요.</div></noscript>
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>
