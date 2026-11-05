@@ -66,7 +66,7 @@ export async function extractPages(pdf, { onProgress, minChars = 30, only = null
       onProgress?.(n, pdf.numPages);
     } catch (e) {
       console.error(`PDF ${n}쪽 추출 오류`, e);
-      throw new Error(`${n}쪽 텍스트 추출 실패: ${e?.message || String(e)}`);
+throw new Error(`${n}쪽 텍스트 추출 실패: ${String(e)}`);
     } finally {
       page?.cleanup();
     }
