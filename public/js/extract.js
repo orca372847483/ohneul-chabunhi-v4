@@ -42,10 +42,12 @@ function groupLines(its) {
 
 export async function extractPages(pdf, { onProgress, minChars = 30, only = null } = {}) {
   const pages = [];
+
   for (let n = 1; n <= pdf.numPages; n++) {
     if (only && !only.includes(n)) continue;
 
     let page;
+
     try {
       page = await pdf.getPage(n);
       const vp = page.getViewport({ scale: 1 });
@@ -53,14 +55,22 @@ export async function extractPages(pdf, { onProgress, minChars = 30, only = null
       const lines = itemsToLines(tc.items, vp.width);
       const chars = lines.join('').replace(/\s/g, '').length;
 
-      pages.push({ page: n, lines, chars, scanned: chars < minChars, source: 'text' });
+      pages.push({
+        page: n,
+        lines,
+        chars,
+        scanned: chars < minChars,
+        source: 'text'
+      });
+
       onProgress?.(n, pdf.numPages);
     } catch (e) {
       console.error(`PDF ${n}쪽 추출 오류`, e);
-      throw new Error(`${n}쪽 텍스트 추출 실패: ${e?.message || e}`);
+      throw new Error(`${n}쪽 텍스트 추출 실패: ${e?.message || String(e)}`);
     } finally {
       page?.cleanup();
     }
   }
+
   return pages;
 }
