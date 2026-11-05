@@ -1,0 +1,13 @@
+{
+  "name": "ohneul-chabunhi-korean-exam-library",
+  "version": "4.1.0",
+  "private": true,
+  "type": "module",
+  "description": "오늘도 차분히 · 국어 기출 라이브러리",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
