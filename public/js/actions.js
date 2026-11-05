@@ -62,16 +62,22 @@ export async function confirmOcr({ scanned, total }) {
 export async function runAnalyze(docId, { quiet = false } = {}) {
   try {
     setBusy('분석 시작…');
-    const a = await analyzeDoc(docId, { onProgress: (m, n, t) => setBusy(`${m}${t ? ` ${n}/${t}` : ''}…`), confirmOcr });
+    const a = await analyzeDoc(docId, {
+      onProgress: (m, n, t) => setBusy(`${m}${t ? ` ${n}/${t}` : ''}…`),
+      confirmOcr
+    });
     if (!quiet) toast(`지문 ${a.passages}개 · 자동 분류 ${a.auto}개 · 수동 분류 필요 ${a.needsManual}개`, a.passages ? 'info' : 'error', 6000);
     a.note.forEach((n) => toast(n, 'info', 7000));
     return a;
   } catch (e) {
-  console.error('분석 오류:', e);
-  toast(`분석하지 못했어요: ${e?.stack || e?.message || String(e)}`, 'error', 15000);
-  return null;
+    console.error('분석 오류:', e);
+    toast(`분석하지 못했어요: ${e?.stack || e?.message || String(e)}`, 'error', 15000);
+    return null;
+  } finally {
+    setBusy('');
+    emit('data');
+  }
 }
-
 /** 내 PDF 파일 추가(여러 개 가능). 중복은 건너뛴다 */
 export async function addFiles(files) {
   const added = [];
